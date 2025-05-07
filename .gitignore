@@ -1,0 +1,21 @@
+# Rust 编译产物
+/target/
+**/*.rs.bk
+
+# 本地环境配置
+.env
+
+# IDE 和编辑器
+.idea/
+.vscode/
+
+# 日志和持久化数据
+logs/
+*.log
+
+# Cargo 锁文件（如果是库项目且希望让下游决定锁版本）
+#Cargo.lock
+
+# 可执行文件
+tdao-referenda-sync
+
