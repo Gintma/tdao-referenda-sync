@@ -122,15 +122,21 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
                         AssetConfig {
                             symbol: "DOT".into(),
                             decimals: 10,
-                            voting_threshold: "10000000000".into(),
-                            multiplier: 1,
+                            
                         }
                     ],
-                }
+                },
+            ],
+            accessibility: "whitelist".into(),
+            whitelist: vec![
+                "12mP4sjCfKbDyMRAEyLpkeHeoYtS5USY4x34n9NMwQrcEyoh".to_string(),
+                "167rjWHghVwBJ52mz8sNkqr5bKu5vpchbc9CBoieBhVX714h".to_string(),
+                "16ap6fdqS2rqFsyYah35hX1FH6rPNWtLqqXZDQC9x6GW141C".to_string(),
+                "14pa3BAYZLPvZfRDjWEfZXZWBVU45E67HUQEUxNCrdXGoata".to_string(),
+                "14qwyVVvW4Tuhq4Fvt2AHZqhbCtGfVb8HUY2xM2PKrzKsmZT".to_string(),
             ],
             strategies: vec![
-                "balance-of".into(),
-                "quadratic-balance-of".into(),
+                "one-person-one-vote".into(),
             ],
             version: "4".into(),
         };
@@ -142,7 +148,8 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
         // 6.5 构造 ProposalData
         let data = ProposalData {
             space:            cfg.open_square_space.clone(),
-            title:            display_title.clone(),
+            // title:            display_title.clone(),
+            title:            "test-test-test".into(),
             content:          content.clone(),
             content_type:     "markdown".into(),
             choice_type:      "single".into(),

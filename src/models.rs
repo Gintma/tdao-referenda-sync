@@ -27,9 +27,9 @@ pub struct ContentSummary {
 pub struct AssetConfig {
     pub symbol: String,
     pub decimals: u8,
-    #[serde(rename = "votingThreshold")]
-    pub voting_threshold: String,
-    pub multiplier: u32,
+    // #[serde(rename = "votingThreshold")]
+    // pub voting_threshold: String,
+    // pub multiplier: u32,
 }
 
 /// networksConfig 里的单个网络详情
@@ -51,6 +51,9 @@ pub struct NetworksConfig {
     pub networks: Vec<NetworkDetail>,
     pub strategies: Vec<String>,
     pub version: String,
+    pub accessibility: String,
+    pub whitelist: Vec<String>,
+   
 }
 
 /// data 字段里的完整提案结构
