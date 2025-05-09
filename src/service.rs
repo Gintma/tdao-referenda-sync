@@ -148,8 +148,8 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
         // 6.5 构造 ProposalData
         let data = ProposalData {
             space:            cfg.open_square_space.clone(),
-            // title:            display_title.clone(),
-            title:            "test-test-test".into(),
+            title:            display_title.clone(),
+           // title:            "test-test-test".into(),
             content:          content.clone(),
             content_type:     "markdown".into(),
             choice_type:      "single".into(),
