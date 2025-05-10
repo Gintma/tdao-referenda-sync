@@ -2,7 +2,7 @@
 use anyhow::Result;
 use log::{info, error};
 use reqwest::Client;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap};
 use serde_json::to_string_pretty;
 use chrono::{Utc, Datelike, Duration as ChronoDuration, TimeZone};
 
@@ -15,6 +15,7 @@ use crate::config::Config;
 use crate::db::Db;
 use crate::models::{
     SubSquareReferendum,
+    ReferendumStatus,
     ProposalData,
     OpenSquareNewProposalRequest,
     NetworksConfig,
@@ -65,15 +66,28 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
     let existing = db.get_existing_indices().await?;
     info!("📚 当前已同步公投编号（{} 条）：{:?}", existing.len(), existing);
 
-    // 3. 拉取并去重
-    let referenda: Vec<SubSquareReferendum> = fetch_referenda(client, cfg.page_size).await?;
-    info!("🔍 拉取 {} 条公投数据", referenda.len());
-    let mut seen = HashSet::new();
-    let unique: Vec<_> = referenda
-        .into_iter()
-        .filter(|r| seen.insert(r.referendum_index))
-        .collect();
-    info!("🔎 去重后剩余 {} 条", unique.len());
+    // // 3. 拉取并去重
+    // let referenda: Vec<SubSquareReferendum> = fetch_referenda(client, cfg.page_size).await?;
+    // info!("🔍 拉取 {} 条公投数据", referenda.len());
+    // let mut seen = HashSet::new();
+    // let unique: Vec<_> = referenda
+    //     .into_iter()
+    //     .filter(|r| seen.insert(r.referendum_index))
+    //     .collect();
+    // info!("🔎 去重后剩余 {} 条", unique.len());
+
+     // 3. 拉取并筛选 Deciding 状态的公投
+     let referenda: Vec<SubSquareReferendum> = fetch_referenda(client, cfg.page_size).await?;
+     info!("🔍 拉取 {} 条公投数据", referenda.len());
+ 
+     let mut deciding_only: Vec<SubSquareReferendum> = referenda
+         .into_iter()
+         .filter(|r| r.state.status == ReferendumStatus::Deciding)
+         .collect();
+ 
+     // 4. 按编号升序排序，编号越小的越先发布
+     deciding_only.sort_by_key(|r| r.referendum_index);
+     info!("🗳 状态为 Deciding 的公投共 {} 条", deciding_only.len());
 
     // 4. 签名密钥对
     let keypair = sr25519::Pair::from_string(&cfg.mnemonic, None)?;
@@ -82,7 +96,7 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
     info!("⛏ 快照块高度：{}", snapshot);
 
     // 6. 逐条处理
-    for r in unique {
+    for r in deciding_only {
         info!("➡️ 开始处理公投 #{}", r.referendum_index);
         if existing.contains(&(r.referendum_index as i32)) {
             info!("↩️ 公投 #{} 已存在，跳过", r.referendum_index);
@@ -101,6 +115,7 @@ pub async fn run_sync(client: &Client, db: &Db, cfg: &Config) -> Result<()> {
         // 6.2 拼标题和内容
         let title_text = r.title.clone().unwrap_or_default();
         let display_title = Track::format_title(r.track_id, r.referendum_index, &title_text);
+ 
         let content = format!(
             "https://polkadot.subsquare.io/referenda/{}\n\n{}",
             r.referendum_index,

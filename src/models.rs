@@ -4,6 +4,31 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
+
+
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub enum ReferendumStatus {
+    Confirming,
+    Deciding,
+    Queueing,
+    Preparing,
+    Submitted,
+    Approved,
+    Cancelled,
+    Killed,
+    TimedOut,
+    Rejected,
+    Executed,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SubSquareReferendumState {
+    #[serde(rename = "name")]
+    pub status: ReferendumStatus,
+}
+
+
 /// SubSquare 公投结构体映射
 #[derive(Debug, Deserialize)]
 pub struct SubSquareReferendum {
@@ -15,7 +40,11 @@ pub struct SubSquareReferendum {
     pub track_id: u16,
     #[serde(rename = "contentSummary")]
     pub content_summary: Option<ContentSummary>,
+    pub state: SubSquareReferendumState,
 }
+
+
+
 
 #[derive(Debug, Deserialize)]
 pub struct ContentSummary {
