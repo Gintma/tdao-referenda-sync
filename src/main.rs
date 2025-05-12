@@ -1,4 +1,5 @@
 
+
 mod config;
 mod db;
 mod models;
@@ -37,13 +38,10 @@ async fn main() -> Result<()> {
     // 连接数据库
     let db = Db::connect(&cfg.postgres_url).await?;
 
-    // 首次同步
-    if let Err(err) = run_sync(&http, &db, &cfg).await {
-        error!("❌ 初始同步失败: {:?}", err);
-    }
+  
 
     // 创建一个 Interval
-    let mut ticker = interval(Duration::from_secs(60 * 2));
+    let mut ticker = interval(Duration::from_secs(60 * 30));
 
     // 如果错过执行，延迟到下一个周期，而不是立即补跑
     ticker.set_missed_tick_behavior(MissedTickBehavior::Delay);
@@ -64,7 +62,7 @@ async fn main() -> Result<()> {
         }
 
         // 5. 计算并打印下一次执行时间
-        let next = now + ChronoDuration::minutes(2);
+        let next = now + ChronoDuration::minutes(30);
         info!("⏱ 下一次定时同步将于 {}", next.format("%Y-%m-%d %H:%M:%S"));
 }
 }
