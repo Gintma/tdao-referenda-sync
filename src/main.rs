@@ -43,6 +43,7 @@ async fn main() -> Result<()> {
     // 创建一个 Interval
     let mut ticker = interval(Duration::from_secs(60 * 30));
 
+
     // 如果错过执行，延迟到下一个周期，而不是立即补跑
     ticker.set_missed_tick_behavior(MissedTickBehavior::Delay);
 
